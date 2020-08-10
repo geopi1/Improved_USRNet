@@ -9,14 +9,15 @@ from skimage import img_as_float
 import time
 import sys
 
+
 def im2patch(im, pch_size, stride=1):
-    '''
+    """
     Transform image to patches.
     Input:
         im: 3 x H x W or 1 X H x W image, numpy format
         pch_size: (int, int) tuple or integer
         stride: (int, int) tuple or integer
-    '''
+    """
     if isinstance(pch_size, tuple):
         pch_H, pch_W = pch_size
     elif isinstance(pch_size, int):
@@ -46,8 +47,9 @@ def im2patch(im, pch_size, stride=1):
 
     return pch.reshape((C, pch_H, pch_W, num_pch))
 
+
 def noise_estimate(im, pch_size=8):
-    '''
+    """
     Implement of noise level estimation of the following paper:
     Chen G , Zhu F , Heng P A . An Efficient Statistical Method for Image Noise Level Estimation[C]// 2015 IEEE International Conference
     on Computer Vision (ICCV). IEEE Computer Society, 2015.
@@ -56,7 +58,7 @@ def noise_estimate(im, pch_size=8):
         pch_size: patch_size
     Output:
         noise_level: the estimated noise level
-    '''
+    """
 
     if im.ndim == 3:
         im = im.transpose((2, 0, 1))
@@ -86,7 +88,7 @@ if __name__ == '__main__':
     im = img_as_float(im)
     sigma = np.random.randint(0,50)/255
     im = im + np.random.randn(*im.shape) * sigma
-    est_level = noise_estimate(im, 8)
+    est_level = noise_estimate(im, 4)
 
     print(f"Sigma: {sigma*255:6.4f} \t Estimated Sigma: {est_level * 255:6.4f}")
     # for level in noise_level:

@@ -64,7 +64,8 @@ def run_USRnet(config, test_image, k=None):
     # ----------------------------------------
     # Preparation
     # ----------------------------------------
-    base_path = os.path.abspath('.')
+    # base_path = os.path.abspath('.')
+    base_path = '/media/george/storge'
     model_name = config['net']      # 'usrgan' | 'usrnet' | 'usrgan_tiny' | 'usrnet_tiny'
     # testset_name = 'set_real'  # test set,  'set_real'
     # test_image = 'soldiers_ww2_small_lancazos.png'    # 'chip.png', 'comic.png'
@@ -105,14 +106,15 @@ def run_USRnet(config, test_image, k=None):
     n_channels = 1 if 'gray' in model_name else 3  # 3 for color image, 1 for grayscale image
     model_pool = 'model_zoo'  # fixed
     testsets = 'testsets'     # fixed
-    results = 'results'       # fixed
+    results = 'USRNet/results'       # fixed
     result_name = model_name
-    model_path = os.path.join(base_path, 'USRNet', model_pool, model_name+'.pth')
+    model_path = os.path.join(os.path.abspath('.'), 'USRNet', model_pool, model_name+'.pth')
 
     # ----------------------------------------
     # L_path, E_path
     # ----------------------------------------
-    L_path = os.path.join(base_path, 'input_images')  # L_path, fixed, for Low-quality images
+    # L_path = os.path.join(base_path, 'input_images')  # L_path, fixed, for Low-quality images
+    L_path = os.path.join('/media/george/storge', 'USRNet', 'DIV2K_LR')  # L_path, fixed, for Low-quality images
     E_path = os.path.join(base_path, results)   # E_path, fixed, for Estimated images
     util.mkdir(E_path)
 
@@ -129,8 +131,10 @@ def run_USRnet(config, test_image, k=None):
         model = net(n_iter=6, h_nc=32, in_nc=4, out_nc=3, nc=[16, 32, 64, 64],
                     nb=2, act_mode="R", downsample_mode='strideconv', upsample_mode="convtranspose")
     else:
+        os.makedirs(os.path.join(base_path, 'USRNet', 'results', f'{test_image}'), exist_ok=True)
         model = net(n_iter=8, h_nc=64, in_nc=4, out_nc=3, nc=[64, 128, 256, 512],
-                    nb=2, act_mode="R", downsample_mode='strideconv', upsample_mode="convtranspose")
+                    nb=2, act_mode="R", downsample_mode='strideconv', upsample_mode="convtranspose",
+                    save_path=os.path.join(base_path, 'USRNet', 'results', f'{test_image}'))
 
     model.load_state_dict(torch.load(model_path), strict=True)
     model.eval()
@@ -151,6 +155,8 @@ def run_USRnet(config, test_image, k=None):
     # ------------------------------------
     img_name, ext = os.path.splitext(os.path.basename(img))
     img_L = util.imread_uint(img, n_channels=n_channels)
+    gt_img = util.imread_uint(os.path.join('/media/george/storge', 'USRNet', 'DIV2K_HR_ds2',f'{test_image}'), n_channels=n_channels)
+    util.imsave(gt_img,os.path.join(base_path, 'USRNet', 'results', f'{test_image}', 'GT.png'))
     img_L = util.uint2single(img_L)
 
     util.imshow(img_L) if show_img else None
@@ -176,7 +182,10 @@ def run_USRnet(config, test_image, k=None):
     sigma = torch.tensor(noise_level_model).float().view([1, 1, 1, 1])
     [img_L, kernel, sigma] = [el.to(device) for el in [img_L, kernel, sigma]]
 
-    img_E = model(img_L, kernel, sf, sigma)
+    try:
+        img_E = model(img_L, kernel, sf, sigma, (sf*h, sf*w))
+    except RuntimeError:
+        return
 
     img_E = util.tensor2uint(img_E)[:sf*w, :sf*h, ...]
 
@@ -197,3 +206,4 @@ def run_USRnet(config, test_image, k=None):
         util.imshow(np.concatenate([img_I, img_E], axis=1), title='LR / Recovered') if show_img else None
         util.imsave(np.concatenate([img_I, img_E], axis=1), os.path.join(E_path, img_name+'_x'+str(sf)+'_'+model_name+kernel_type+'_LE.png'))
 
+    torch.cuda.empty_cache()
