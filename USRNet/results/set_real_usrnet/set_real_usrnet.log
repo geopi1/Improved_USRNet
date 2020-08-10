@@ -1,0 +1,5 @@
+20-07-16 14:57:44.265 : Params number: 17016016
+20-07-16 14:57:45.973 : Model path: model_zoo/usrnet.pth
+20-07-16 14:57:45.973 : model_name:usrnet, image sigma:2
+20-07-16 14:57:45.973 : testsets/set_real
+20-07-16 14:57:45.974 : soldiers_ww2_small_lancazos.png--> ( 120x133 )

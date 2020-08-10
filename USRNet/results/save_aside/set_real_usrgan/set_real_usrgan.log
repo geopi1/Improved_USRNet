@@ -1,0 +1,18 @@
+20-07-16 13:55:58.179 : Params number: 17016016
+20-07-16 13:55:59.912 : Model path: model_zoo/usrgan.pth
+20-07-16 13:55:59.913 : model_name:usrgan, image sigma:2
+20-07-16 13:55:59.913 : testsets/set_real
+20-07-16 13:55:59.920 : soldiers_ww2.png--> ( 480x533 )
+20-07-16 14:01:27.414 : Params number: 17016016
+20-07-16 14:01:29.097 : Model path: model_zoo/usrgan.pth
+20-07-16 14:01:29.097 : model_name:usrgan, image sigma:2
+20-07-16 14:01:29.097 : testsets/set_real
+20-07-16 14:07:02.282 : Params number: 17016016
+20-07-16 14:07:04.039 : Model path: model_zoo/usrgan.pth
+20-07-16 14:07:04.040 : model_name:usrgan, image sigma:2
+20-07-16 14:07:04.040 : testsets/set_real
+20-07-16 14:07:20.428 : Params number: 17016016
+20-07-16 14:07:22.143 : Model path: model_zoo/usrgan.pth
+20-07-16 14:07:22.144 : model_name:usrgan, image sigma:2
+20-07-16 14:07:22.144 : testsets/set_real
+20-07-16 14:07:22.144 : soldiers_ww2_small.png--> ( 120x133 )

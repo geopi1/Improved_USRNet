@@ -1,0 +1,21 @@
+20-07-16 13:14:04.945 : Params number: 17016016
+20-07-16 13:14:07.357 : Model path: model_zoo/usrnet.pth
+20-07-16 13:14:07.357 : model_name:usrnet, image sigma:0
+20-07-16 13:14:07.357 : testsets/our
+20-07-16 13:14:07.357 : ---1--> soldiers_ww2.png
+20-07-16 13:14:09.201 : soldiers_ww2.png - PSNR: 27.86 dB; SSIM: 0.7865.
+20-07-16 13:14:09.276 : Average PSNR/SSIM(RGB) - our_usrnet_bicubic - x4 --PSNR: 27.86 dB; SSIM: 0.7865
+20-07-16 13:14:09.276 : Average PSNR/SSIM( Y ) - our_usrnet_bicubic - x4 - PSNR: 29.17 dB; SSIM: 0.8016
+20-07-16 13:16:59.663 : Params number: 17016016
+20-07-16 13:17:02.773 : Model path: model_zoo/usrnet.pth
+20-07-16 13:17:02.773 : model_name:usrnet, image sigma:5
+20-07-16 13:17:02.773 : testsets/our
+20-07-16 13:17:02.773 : ---1--> soldiers_ww2.png
+20-07-16 13:17:04.529 : soldiers_ww2.png - PSNR: 24.84 dB; SSIM: 0.6110.
+20-07-16 13:17:04.601 : Average PSNR/SSIM(RGB) - our_usrnet_bicubic - x4 --PSNR: 24.84 dB; SSIM: 0.6110
+20-07-16 13:17:04.601 : Average PSNR/SSIM( Y ) - our_usrnet_bicubic - x4 - PSNR: 26.16 dB; SSIM: 0.6429
+20-07-16 13:18:21.133 : Params number: 17016016
+20-07-16 13:18:22.992 : Model path: model_zoo/usrnet.pth
+20-07-16 13:18:22.992 : model_name:usrnet, image sigma:0
+20-07-16 13:18:22.992 : testsets/our
+20-07-16 13:18:22.992 : ---1--> soldiers_ww2.png
