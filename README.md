@@ -43,9 +43,9 @@ RESULTS
 
 ![Ours](./results/0002_x4_usrnetdefaultest_noise_LE.png)
 
-![Default](./results/0002_x4_usrnetdefaultdefault_noise_LE.png)
+![Default](./results/0008_x4_usrnetdefaultdefault_noise_LE.png)
 
-![Ours](./results/0002_x4_usrnetdefaultest_noise_LE.png)
+![Ours](./results/0008_x4_usrnetdefaultest_noise_LE.png)
 
 ## License
 
