@@ -4,7 +4,11 @@ A project in Statistical Image Processing.
 Extension of [Deep unfolding network for image super-resolution](https://arxiv.org/pdf/2003.10428.pdf) 
 for Blind Super Resolution via [Kernel Estimation](https://arxiv.org/abs/1909.06581) 
 
+In this project we aim to extend USRNet [1] for Blind Super Resolution. We
+added a step of blind kernel estimation [2] and noise STD estimation [3] algorithm. These additions show SoTA performance in Blind-SR
+
 This code borrows heavily from [1] & [2], see the papers and code in the Acknowledgment section.
+
 
 ## Getting Started
 
@@ -87,3 +91,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 [1] Zhang, Kai, Luc Van Gool, and Radu Timofte. "Deep unfolding network for image super-resolution." Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2020.
 
 [2] Bell-Kligler, Sefi, Assaf Shocher, and Michal Irani. "Blind super-resolution kernel estimation using an internal-gan." Advances in Neural Information Processing Systems. 2019.
+
+[3] Chen G , Zhu F , Heng P A . "An Efficient Statistical Method for Image Noise Level Estimation" 2015 IEEE International Conference on Computer Vision (ICCV). IEEE Computer Society, 2015.
