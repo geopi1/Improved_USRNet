@@ -10,7 +10,7 @@ from USRNet.utils import utils_deblur
 
 
 # 'usrgan' | 'usrnet' | 'usrgan_tiny' | 'usrnet_tiny'
-config = {'net': 'usrnet'}
+config = {'net': 'usrgan'}
 # list all images
 ext = ['.png', '.jpg', 'jpeg']
 
