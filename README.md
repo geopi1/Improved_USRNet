@@ -39,13 +39,13 @@ HOW TO RUN
 RESULTS 
 
 ## Results
-![Default](./resluts/0002_x4_usrnetdefaultdefault_noise_LE.png)
+![Default](./results/0002_x4_usrnetdefaultdefault_noise_LE.png)
 
-![Ours](./images/0002_x4_usrnetdefaultest_noise_LE.png)
+![Ours](./results/0002_x4_usrnetdefaultest_noise_LE.png)
 
-![Default](./resluts/0002_x4_usrnetdefaultdefault_noise_LE.png)
+![Default](./results/0002_x4_usrnetdefaultdefault_noise_LE.png)
 
-![Ours](./images/0002_x4_usrnetdefaultest_noise_LE.png)
+![Ours](./results/0002_x4_usrnetdefaultest_noise_LE.png)
 
 ## License
 
