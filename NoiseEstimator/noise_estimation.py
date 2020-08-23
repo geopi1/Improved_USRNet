@@ -80,17 +80,17 @@ def noise_estimate(im, pch_size=8):
     for ii in range(-1, -d-1, -1):
         tau = np.mean(sig_value[:ii])
         if np.sum(sig_value[:ii]>tau) == np.sum(sig_value[:ii] < tau):
-            return np.sqrt(tau)
+            return np.sqrt(np.abs(tau))
 
 
-if __name__ == '__main__':
-    im = imread('../input_images/soldiers_ww2_small.png')
-    im = img_as_float(im)
-    sigma = np.random.randint(0,50)/255
-    im = im + np.random.randn(*im.shape) * sigma
-    est_level = noise_estimate(im, 4)
-
-    print(f"Sigma: {sigma*255:6.4f} \t Estimated Sigma: {est_level * 255:6.4f}")
+# if __name__ == '__main__':
+#     im = imread('../input_images/soldiers_ww2_small.png')
+#     im = img_as_float(im)
+#     sigma = np.random.randint(0,50)/255
+#     im = im + np.random.randn(*im.shape) * sigma
+#     est_level = noise_estimate(im, 4)
+#
+#     print(f"Sigma: {sigma*255:6.4f} \t Estimated Sigma: {est_level * 255:6.4f}")
     # for level in noise_level:
     #     sigma = level / 255
     #

@@ -1,24 +1,16 @@
-import os.path
-import cv2
 import logging
+import os.path
 
+import cv2
 import numpy as np
-from datetime import datetime
-from collections import OrderedDict
-from scipy.io import loadmat
-from scipy import ndimage
-import scipy.io as scio
-
 import torch
-
-from USRNet.utils import utils_deblur
-from USRNet.utils import utils_logger
-from USRNet.utils import utils_sisr as sr
-from USRNet.utils import utils_image as util
+from skimage.metrics import structural_similarity as ssim
 
 from USRNet.models.network_usrnet import USRNet as net
-from scipy.io import loadmat
-
+from USRNet.utils import utils_deblur
+from USRNet.utils import utils_image as util
+from USRNet.utils import utils_logger
+from USRNet.utils import utils_sisr as sr
 
 '''
 Spyder (Python 3.7)
@@ -60,33 +52,41 @@ testing code of USRNet for the Table 1 in the paper
 """
 
 
-def run_USRnet(config, test_image, k=None):
+def run_USRnet(config, test_image, k=None, noise_level_img=None):
     # ----------------------------------------
     # Preparation
     # ----------------------------------------
     # base_path = os.path.abspath('.')
-    base_path = '/media/george/storge'
-    model_name = config['net']      # 'usrgan' | 'usrnet' | 'usrgan_tiny' | 'usrnet_tiny'
+    base_path = './'
+    model_name = config['net']  # 'usrgan' | 'usrnet' | 'usrgan_tiny' | 'usrnet_tiny'
     # testset_name = 'set_real'  # test set,  'set_real'
     # test_image = 'soldiers_ww2_small_lancazos.png'    # 'chip.png', 'comic.png'
 
-    sf = 4                     # scale factor, only from {1, 2, 3, 4}
-    show_img = False           # default: False
-    save_E = True              # save estimated image
-    save_LE = True             # save zoomed LR, Estimated images
+    sf = 4  # scale factor, only from {1, 2, 3, 4}
+    show_img = False  # default: False
+    save_E = True  # save estimated image
+    save_LE = True  # save zoomed LR, Estimated images
 
     # ----------------------------------------
     # set noise level and kernel
     # ----------------------------------------
     if 'chip' in test_image:
-        noise_level_img = 15       # noise level for LR image, 15 for chip
+        # noise_level_img = 15       # noise level for LR image, 15 for chip
         kernel_width_default_x1234 = [0.6, 0.9, 1.7, 2.2]  # Gaussian kernel widths for x1, x2, x3, x4
     else:
-        noise_level_img = 2       # noise level for LR image, 0.5~3 for clean images
+        # noise_level_img = 2       # noise level for LR image, 0.5~3 for clean images
         kernel_width_default_x1234 = [0.4, 0.7, 1.5, 2.0]  # default Gaussian kernel widths of clean/sharp images for x1, x2, x3, x4
 
-    noise_level_model = noise_level_img/255.  # noise level of model
-    kernel_width = kernel_width_default_x1234[sf-1]
+    if noise_level_img is None:
+        noise_est_type = 'default_noise'
+        noise_level_img = 2
+        noise_level_model = noise_level_img / 255.  # noise level of model
+    else:
+        noise_est_type = 'est_noise'
+        noise_level_img = noise_level_img * 255
+        noise_level_model = noise_level_img / 255
+
+    kernel_width = kernel_width_default_x1234[sf - 1]
 
     # set your own kernel width
     # kernel_width = 2.2
@@ -97,6 +97,7 @@ def run_USRnet(config, test_image, k=None):
         kernel_type = 'default'
     else:
         kernel_type = 'KernelGAN'
+        k = np.pad(k, ((0, 2), (0, 2)), mode='edge')[2:, 2:]
 
     util.surf(k) if show_img else None
 
@@ -105,21 +106,21 @@ def run_USRnet(config, test_image, k=None):
 
     n_channels = 1 if 'gray' in model_name else 3  # 3 for color image, 1 for grayscale image
     model_pool = 'model_zoo'  # fixed
-    testsets = 'testsets'     # fixed
-    results = 'USRNet/results'       # fixed
+    testsets = 'testsets'  # fixed
+    results = 'results'  # fixed
     result_name = model_name
-    model_path = os.path.join(os.path.abspath('.'), 'USRNet', model_pool, model_name+'.pth')
+    model_path = os.path.join(os.path.abspath('.'), 'USRNet', model_pool, model_name + '.pth')
 
     # ----------------------------------------
     # L_path, E_path
     # ----------------------------------------
-    # L_path = os.path.join(base_path, 'input_images')  # L_path, fixed, for Low-quality images
-    L_path = os.path.join('/media/george/storge', 'USRNet', 'DIV2K_LR')  # L_path, fixed, for Low-quality images
-    E_path = os.path.join(base_path, results)   # E_path, fixed, for Estimated images
+    L_path = os.path.join(base_path, 'input_images')  # L_path, fixed, for Low-quality images
+    # L_path = os.path.join('/media/george/storge', 'USRNet', 'DIV2K_LR')  # L_path, fixed, for Low-quality images
+    E_path = os.path.join(base_path, results, f'{test_image.split(".")[0]}')  # E_path, fixed, for Estimated images
     util.mkdir(E_path)
 
     logger_name = result_name
-    utils_logger.logger_info(logger_name, log_path=os.path.join(E_path, logger_name+'.log'))
+    utils_logger.logger_info(logger_name, log_path=os.path.join(E_path, logger_name + '.log'))
     logger = logging.getLogger(logger_name)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -127,14 +128,15 @@ def run_USRnet(config, test_image, k=None):
     # ----------------------------------------
     # load model
     # ----------------------------------------
+    # gt_img = util.imread_uint(os.path.join('/media/george/storge', 'USRNet', 'DIV2K_HR_ds2', f'{test_image}'), n_channels=n_channels)
     if 'tiny' in model_name:
         model = net(n_iter=6, h_nc=32, in_nc=4, out_nc=3, nc=[16, 32, 64, 64],
                     nb=2, act_mode="R", downsample_mode='strideconv', upsample_mode="convtranspose")
     else:
-        os.makedirs(os.path.join(base_path, 'USRNet', 'results', f'{test_image}'), exist_ok=True)
+        # os.makedirs(os.path.join(base_path, 'results', f'{test_image}'), exist_ok=True)
         model = net(n_iter=8, h_nc=64, in_nc=4, out_nc=3, nc=[64, 128, 256, 512],
                     nb=2, act_mode="R", downsample_mode='strideconv', upsample_mode="convtranspose",
-                    save_path=os.path.join(base_path, 'USRNet', 'results', f'{test_image}'))
+                    save_path=os.path.join(base_path, 'results', f'{test_image}'),gt_im=None)
 
     model.load_state_dict(torch.load(model_path), strict=True)
     model.eval()
@@ -155,18 +157,21 @@ def run_USRnet(config, test_image, k=None):
     # ------------------------------------
     img_name, ext = os.path.splitext(os.path.basename(img))
     img_L = util.imread_uint(img, n_channels=n_channels)
-    gt_img = util.imread_uint(os.path.join('/media/george/storge', 'USRNet', 'DIV2K_HR_ds2',f'{test_image}'), n_channels=n_channels)
-    util.imsave(gt_img,os.path.join(base_path, 'USRNet', 'results', f'{test_image}', 'GT.png'))
+    try:
+        gt_img = util.imread_uint(os.path.join('/media/george/storge', 'USRNet', 'DIV2K_HR_ds2', f'{test_image}'), n_channels=n_channels)
+    except AttributeError:
+        gt_img = np.zeros((img_L.shape[0]*4,img_L.shape[1]*4,3), dtype=img_L.dtype)
+    # util.imsave(gt_img,os.path.join(base_path, 'USRNet', 'results', f'{test_image}', 'GT.png'))
     img_L = util.uint2single(img_L)
 
     util.imshow(img_L) if show_img else None
     w, h = img_L.shape[:2]
-    logger.info('{:>10s}--> ({:>4d}x{:<4d})'.format(img_name+ext, w, h))
+    logger.info('{:>10s}--> ({:>4d}x{:<4d})'.format(img_name + ext, w, h))
 
     # boundary handling
-    boarder = 8     # default setting for kernel size 25x25
-    img = cv2.resize(img_L, (sf*h, sf*w), interpolation=cv2.INTER_NEAREST)
-    img = utils_deblur.wrap_boundary_liu(img, [int(np.ceil(sf*w/boarder+2)*boarder), int(np.ceil(sf*h/boarder+2)*boarder)])
+    boarder = 8  # default setting for kernel size 25x25
+    img = cv2.resize(img_L, (sf * h, sf * w), interpolation=cv2.INTER_NEAREST)
+    img = utils_deblur.wrap_boundary_liu(img, [int(np.ceil(sf * w / boarder + 2) * boarder), int(np.ceil(sf * h / boarder + 2) * boarder)])
     img_wrap = sr.downsample_np(img, sf, center=False)
     img_wrap[:w, :h, :] = img_L
     img_L = img_wrap
@@ -183,27 +188,30 @@ def run_USRnet(config, test_image, k=None):
     [img_L, kernel, sigma] = [el.to(device) for el in [img_L, kernel, sigma]]
 
     try:
-        img_E = model(img_L, kernel, sf, sigma, (sf*h, sf*w))
+        img_E = model(img_L, kernel, sf, sigma, (sf * h, sf * w))
     except RuntimeError:
         return
 
-    img_E = util.tensor2uint(img_E)[:sf*w, :sf*h, ...]
+    img_E = util.tensor2uint(img_E)[:sf * w, :sf * h, ...]
 
     if save_E:
-        util.imsave(img_E, os.path.join(E_path, img_name+'_x'+str(sf)+'_'+model_name+kernel_type+'.png'))
+        util.imsave(img_E, os.path.join(E_path, img_name + '_x' + str(sf) + '_' + model_name + kernel_type + noise_est_type + '.png'))
 
     # --------------------------------
     # (3) save img_LE
     # --------------------------------
     if save_LE:
-        k_v = k/np.max(k)*1.2
+        k_v = k / np.max(k) * 1.2
         k_v = util.single2uint(np.tile(k_v[..., np.newaxis], [1, 1, 3]))
         k_factor = 3
-        k_v = cv2.resize(k_v, (k_factor*k_v.shape[1], k_factor*k_v.shape[0]), interpolation=cv2.INTER_NEAREST)
+        k_v = cv2.resize(k_v, (k_factor * k_v.shape[1], k_factor * k_v.shape[0]), interpolation=cv2.INTER_NEAREST)
         img_L = util.tensor2uint(img_L)[:w, :h, ...]
-        img_I = cv2.resize(img_L, (sf*img_L.shape[1], sf*img_L.shape[0]), interpolation=cv2.INTER_NEAREST)
+        img_I = cv2.resize(img_L, (sf * img_L.shape[1], sf * img_L.shape[0]), interpolation=cv2.INTER_NEAREST)
         img_I[:k_v.shape[0], :k_v.shape[1], :] = k_v
         util.imshow(np.concatenate([img_I, img_E], axis=1), title='LR / Recovered') if show_img else None
-        util.imsave(np.concatenate([img_I, img_E], axis=1), os.path.join(E_path, img_name+'_x'+str(sf)+'_'+model_name+kernel_type+'_LE.png'))
+        util.imsave(np.concatenate([img_I, img_E], axis=1), os.path.join(E_path, img_name + '_x' + str(sf) + '_' + model_name + kernel_type + noise_est_type + '_LE.png'))
+
+    with open(os.path.join(E_path, 'psnr_log.txt'), 'a') as f:
+        f.write(f'{model_name} {kernel_type} {noise_est_type} \t\t PSNR: {cv2.PSNR(img_E, gt_img)} \t SSIM: {ssim(img_E, gt_img, data_range=img_E.max() - img_E.min(), multichannel=True)}\n')
 
     torch.cuda.empty_cache()

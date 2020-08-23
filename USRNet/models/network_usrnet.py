@@ -5,7 +5,8 @@ import numpy as np
 from USRNet.utils import utils_image as util
 import matplotlib.pyplot as plt
 import os
-
+import cv2
+from scipy.interpolate import interp1d
 """
 # --------------------------------------------
 # Kai Zhang (cskaizhang@gmail.com)
@@ -309,14 +310,15 @@ class HyPaNet(nn.Module):
 
 class USRNet(nn.Module):
     def __init__(self, n_iter=8, h_nc=64, in_nc=4, out_nc=3, nc=[64, 128, 256, 512], nb=2, act_mode='R', downsample_mode='strideconv', upsample_mode='convtranspose',
-                 save_path='./USRNet/results/dataset'):
+                 save_path='./USRNet/results/dataset', gt_im=None):
         super(USRNet, self).__init__()
 
         self.d = DataNet()
         self.p = ResUNet(in_nc=in_nc, out_nc=out_nc, nc=nc, nb=nb, act_mode=act_mode, downsample_mode=downsample_mode, upsample_mode=upsample_mode)
         self.h = HyPaNet(in_nc=2, out_nc=n_iter*2, channel=h_nc)
-        self.n = n_iter*2
+        self.n = n_iter
         self.save_path = save_path
+        self.gt_im = gt_im
 
     def forward(self, x, k, sf, sigma, im_size):
         '''
@@ -337,18 +339,42 @@ class USRNet(nn.Module):
 
         # hyper-parameter, alpha & beta
         ab = self.h(torch.cat((sigma, torch.tensor(sf).type_as(sigma).expand_as(sigma)), dim=1))
-        ab = torch.nn.functional.interpolate(ab[0,:].transpose(0,2),scale_factor=2).transpose(2,0).expand([1,32,1,1])
+        # ab = torch.nn.functional.interpolate(ab[0,:].transpose(0,2),scale_factor=4,mode='linear').transpose(2,0).expand([1,32,1,1])
+        # plt.figure(1)
+        # plt.clf()
+        # plt.title('beta prediction values')
+        # plt.plot(ab[0,:,0,0].cpu().numpy())
+
+        # a = ab[0,:8,0,0]
+        # b = ab[0,8:,0,0]
+        # f1 = interp1d(np.linspace(0,8,8), a.cpu().numpy(), kind='linear')
+        # f2 = interp1d(np.linspace(0,8,8), b.cpu().numpy(), kind='linear')
+        # ab = torch.cat([torch.tensor(f1(np.linspace(0,8,16)),dtype=torch.float32).to('cuda:0'),torch.tensor(f2(np.linspace(0,8,16)),dtype=torch.float32).to('cuda:0')]).unsqueeze(0).unsqueeze(2).unsqueeze(3)
+        # a = torch.nn.functional.pad(a, [0, 8], 'constant', a.cpu().numpy()[-1])
+        # b = torch.nn.functional.pad(b, [0, 8], 'constant', b.cpu().numpy()[-1])
+        # ab = torch.cat([a,b]).unsqueeze(0).unsqueeze(2).unsqueeze(3)
+        psnr = []
         # unfolding
+        # plt.figure(2)
+        # plt.clf()
+        # plt.title('beta prediction values')
+        # plt.plot(ab[0,:,0,0].cpu().numpy())
+        # plt.savefig(self.save_path)
         for i in range(self.n):
             
-            x = self.d(x, FB, FBC, F2B, FBFy, ab[:, i:i+1, ...], sf)
+            x = self.d(x, FB, FBC, F2B, FBFy, ab[:, i, ...], sf)
+            x = self.p(torch.cat((x, ab[:, i+self.n, ...].repeat(1, 1, x.size(2), x.size(3))), dim=1))
+
             # x_np = x.clone()
-            # x_np = x_np.cpu().numpy()
-            # plt.imsave(os.path.join(self.save_path, f'after_d_{i:05d}.png'),x_np[0].transpose([1,2,0]))
-            x = self.p(torch.cat((x, ab[:, i+self.n:i+self.n+1, ...].repeat(1, 1, x.size(2), x.size(3))), dim=1))
-            x_np = x.clone()
-            x_np = util.tensor2uint(x_np)[:im_size[1], :im_size[0], ...]
-            # print([int(np.ceil(sf * w / 8 + 2) * 8), int(np.ceil(sf * h / 8 + 2) * 8)])
-            # x_np = x_np.cpu().numpy()
-            plt.imsave(os.path.join(self.save_path, f'{i:05d}.png'), x_np)
+            # x_np = util.tensor2uint(x_np)[:im_size[1], :im_size[0], ...]
+            # psnr.append(cv2.PSNR(x_np, self.gt_im))
+            # plt.imsave(os.path.join(self.save_path, f'{i:05d}.png'), x_np)
+
+        # plt.figure(3)
+        # plt.clf()
+        # plt.plot(psnr)
+        # plt.title('PSNR per iteration')
+        # plt.ylabel('dB')
+        # plt.savefig(self.save_path)
+        # plt.show()
         return x
