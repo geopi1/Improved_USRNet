@@ -45,9 +45,10 @@ for additional package information please refer to requirements.txt or env.yml
     python -m venv Blind_USRNet
     pip install -r requirements.txt
     ```
-3. put images in right place
+3. There are several examples provided with the code in ./input_images
+4. All other images to be tested should be placed in ./input_images
 
-## Testing
+## Running the Code
 ### Code
 ```bash
 python main.py 
@@ -61,7 +62,7 @@ This will output 4 types of images to ./results:
 Additionally, for each estimated image a side-by-side image with the LR version is saved with the degredation kernel (default or estimated)  
 
 ### Numerical Evaluation
-To calculate the numeric results on the whole dataset run:
+To calculate the numerical results on the whole dataset run:
 ```bash
 python utils/get_results.py
 ```
@@ -70,7 +71,7 @@ This will calculate the mean PSNR and SSIM on the SR<->HR on all the results
 ## Numerical Results
 | Metric        | Default        | Default + Noise Est. | Kernel Est.      | Kernel Est. + Noise Est. |
 | ------------- | -------------- | -------------------- | ---------------- | ------------------------ |
-| PSNR          | 22.35 dB       | 22.30 (-0.05) dB     | 26.31 (+3.96) dB | 26.29 (+3.94) dB         |
+| PSNR          | 22.35 dB       | 22.30 (-0.05) dB     | <span style=“color:green;”> 26.31 (+3.96) dB</span> | 26.29 (+3.94) dB         |
 | SSIM          | 0.756          | 0.755 (-0.001)       | 0.797 (+0.041)   | 0.797 (+0.041)           |
 
 ## Visual Results
