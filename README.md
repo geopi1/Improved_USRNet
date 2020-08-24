@@ -71,10 +71,10 @@ python utils/get_results.py
 This will calculate the mean PSNR and SSIM on the SR<->HR on all the results
 
 ## Numerical Results
-| Metric        | Default        | Default + Noise Est. | Kernel Est.      | Kernel Est. + Noise Est. |
-| ------------- | -------------- | -------------------- | ---------------- | ------------------------ |
-| PSNR          | 22.35 dB       | 22.30 (-0.05) dB     | 26.31 (+3.96) dB | 26.29 (+3.94) dB         |
-| SSIM          | 0.756          | 0.755 (-0.001)       | 0.797 (+0.041)   | 0.797 (+0.041)           |
+| Metric        | Default        | Default + Noise Est. | Kernel Est.          | Kernel Est. + Noise Est. |
+| ------------- | -------------- | -------------------- | -------------------- | ------------------------ |
+| PSNR          | 22.35 dB       | 22.30 (-0.05) dB     | **26.31 (+3.96) dB** | 26.29 (+3.94) dB         |
+| SSIM          | 0.756          | 0.755 (-0.001)       | **0.797 (+0.041)**   | 0.797 (+0.041)           |
 
 ## Visual Results
 On each image we see (top) the default USRNet estimation with the default kernel, (middle) Blind-USRNet with the estimated kernel and (bottom) Ground Truth.  
