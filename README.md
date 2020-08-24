@@ -5,9 +5,7 @@ Extension of [Deep unfolding network for image super-resolution](https://arxiv.o
 for Blind Super Resolution via [Kernel Estimation](https://arxiv.org/abs/1909.06581) 
 
 In this project we aim to extend USRNet [1] for Blind Super Resolution. We
-added a step of blind kernel estimation [2] and noise STD estimation [3] algorithm. These additions show SoTA performance in Blind-SR
-
-This code borrows heavily from [1] & [2], see the papers and code in the Acknowledgment section.
+added a step of blind kernel estimation [2] and noise STD estimation [3] algorithm. These additions show SOTA performance in Blind-SR
 
 
 ## Getting Started
@@ -26,14 +24,15 @@ This link will download 2 folders:
 * DIV2K_HR_ds2 - Ground truth high resolution images
 
 ### Prerequisites
-Tested and run on:  
+Tested and ran on:  
  * UBUNTU 18.04  
  * RTX 2080  
  * Nvidia driver 440.95.10  
  * cuda 10.1.243  
  * cudnn 7.6.5  
  * pytorch 1.5  
- * TF 1.14
+ * TF 1.14  
+for additional package information please refer to requirements.txt or env.yml 
  
  
 1. Setup conda 
@@ -55,9 +54,9 @@ python main.py
 ```
 This will output 4 types of images to ./results: 
 * Default USRNet settings
-* Default USRNet settings + Noise STD estimation
+* Default USRNet settings + estimated Noise STD 
 * Kernel estimated USRNet
-* Kernel estimated USRNet + Noise STD estimation
+* Kernel estimated USRNet + estimated Noise STD
 
 Additionally, for each estimated image a side-by-side image with the LR version is saved with the degredation kernel (default or estimated)  
 
@@ -69,19 +68,22 @@ python utils/get_results.py
 This will calculate the mean PSNR and SSIM on the SR<->HR on all the results
 
 ## Numerical Results
-| Metric        | Default | Default + Noise Est. | Kernel Est. | Kernel Est. + Noise Est. |
-| ------------- | ------- | -------------------- | ----------- | ------------------------ |
-| PSNR          |         | $1600 |              |             |                          |
-| SSIM          |         |   $12 |              |             |                          |
+| Metric        | Default        | Default + Noise Est. | Kernel Est.      | Kernel Est. + Noise Est. |
+| ------------- | -------------- | -------------------- | ---------------- | ------------------------ |
+| PSNR          | 22.35 dB       | 22.30 (-0.05) dB     | 26.31 (+3.96) dB | 26.29 (+3.94) dB         |
+| SSIM          | 0.756          | 0.755 (-0.001)       | 0.797 (+0.041)   | 0.797 (+0.041)           |
 
 ## Visual Results
-![Default](./results/0002_x4_usrnetdefaultdefault_noise_LE.png)
-
-![Ours](./results/0002_x4_usrnetKernelGANdefault_noise_LE.png)
-
-![Default](./results/0008_x4_usrnetdefaultdefault_noise_LE.png)
-
-![Ours](./results/0008_x4_usrnetKernelGANdefault_noise_LE.png)
+On the left, the LR image and on the Right the reconstructed HR image.  
+The blur kernel of the LR image is at the top left corner.  
+Default:   
+![Default](./results/0002_x4_usrnetdefaultdefault_noise_LE.png)  
+Ours:  
+![Ours](./results/0002_x4_usrnetKernelGANdefault_noise_LE.png)  
+Default:  
+![Default](./results/0008_x4_usrnetdefaultdefault_noise_LE.png)  
+Ours:  
+![Ours](./results/0008_x4_usrnetKernelGANdefault_noise_LE.png)  
 
 ## License
 
