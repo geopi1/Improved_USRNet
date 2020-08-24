@@ -7,6 +7,8 @@ for Blind Super Resolution via [Kernel Estimation](https://arxiv.org/abs/1909.06
 In this project we aim to extend USRNet [1] for Blind Super Resolution. We
 added a step of blind kernel estimation [2] and noise STD estimation [3] algorithm. These additions show SOTA performance in Blind-SR
 
+Written with Eyal Naor - https://github.com/eyalnaor
+
 ![Default](./results/0002_x4_usrnetdefaultdefault_noise_LE.png)
 ## Getting Started
 
@@ -71,20 +73,18 @@ This will calculate the mean PSNR and SSIM on the SR<->HR on all the results
 ## Numerical Results
 | Metric        | Default        | Default + Noise Est. | Kernel Est.      | Kernel Est. + Noise Est. |
 | ------------- | -------------- | -------------------- | ---------------- | ------------------------ |
-| PSNR          | 22.35 dB       | 22.30 (-0.05) dB     | <span style=“color:green;”> 26.31 (+3.96) dB</span> | 26.29 (+3.94) dB         |
+| PSNR          | 22.35 dB       | 22.30 (-0.05) dB     | 26.31 (+3.96) dB | 26.29 (+3.94) dB         |
 | SSIM          | 0.756          | 0.755 (-0.001)       | 0.797 (+0.041)   | 0.797 (+0.041)           |
 
 ## Visual Results
-On the left, the LR image and on the Right the reconstructed HR image.  
+On each image we see (top) the default USRNet estimation with the default kernel, (middle) Blind-USRNet with the estimated kernel and (bottom) Ground Truth.  
 The blur kernel of the LR image is at the top left corner.  
-Default:   
-![Default](./results/0002_x4_usrnetdefaultdefault_noise_LE.png)  
-Ours:  
-![Ours](./results/0002_x4_usrnetKernelGANdefault_noise_LE.png)  
-Default:  
-![Default](./results/0008_x4_usrnetdefaultdefault_noise_LE.png)  
-Ours:  
-![Ours](./results/0008_x4_usrnetKernelGANdefault_noise_LE.png)  
+Example 1:   
+![Default](./results/Picture1.png)  
+Example 2:  
+![Ours](./results/Picture2.png)  
+Example 3:  
+![Default](./results/Picture3.png)  
 
 ## License
 
