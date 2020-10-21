@@ -14,7 +14,7 @@ plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-base_dir = '/home/george/PycharmProjects/Statistical_im_proc/results'
+base_dir = './results_usrnet_8iter'
 result_list = sorted(os.listdir(base_dir))
 
 default_psnr = list()
@@ -27,8 +27,11 @@ noise_kernel_psnr = list()
 noise_kernel_ssim = list()
 
 for ind,folder in enumerate(result_list):
+    if not os.path.exists(os.path.join(base_dir,folder,'psnr_log.txt')):
+        continue
     with open(os.path.join(base_dir,folder,'psnr_log.txt'), 'r') as f:
         data = f.readlines()
+
 
     default_psnr.append(float(data[0].split()[4]))
     default_ssim.append(float(data[0].split()[-1]))
